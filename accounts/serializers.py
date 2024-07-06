@@ -34,3 +34,18 @@ class RegistrationSerializer(serializers.Serializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom fields
+        token['email'] = user.email
+        token['firstName'] = user.firstName
+        token['lastName'] = user.lastName
+        token['phone'] = user.phone
+
+        return token

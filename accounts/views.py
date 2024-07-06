@@ -6,7 +6,8 @@ from django.db import DatabaseError
 from .models import User, Organisation
 from .serializers import (
     UserSerializer, OrganisationSerializer, OrganisationCreateSerializer,
-    RegistrationSerializer, LoginSerializer, AddUserToOrganisationSerializer
+    RegistrationSerializer, LoginSerializer, AddUserToOrganisationSerializer,
+    CustomTokenObtainPairSerializer
 )
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
@@ -15,6 +16,10 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 class RegisterView(GenericAPIView):
     serializer_class = RegistrationSerializer

@@ -141,23 +141,39 @@ CORS_ALLOWED_ORIGINS = [
 
 # JWT token settings
 from datetime import timedelta
+# JWT token settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': 'jjvvcxeervbhbnnuhugguu8',  # Replace with your own secret key
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'LEEWAY': 0,
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
 
     'AUTH_HEADER_TYPES': ('Bearer',),
-    'USER_ID_FIELD': 'id',
+    'USER_ID_FIELD': 'userId',
     'USER_ID_CLAIM': 'user_id',
 
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
-}
-SIMPLE_JWT = {
-    'USER_ID_FIELD': 'userId',
+
+    'JTI_CLAIM': 'jti',
+
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+
+    'AUTHORIZATION_URL': 'http://localhost:8000/api/token/obtain/',
+    'USER_SERVICE': 'users.service.UserService',
+
+    'JWT_PAYLOAD_HANDLER': (
+        'rest_framework_simplejwt.utils.jwt_payload_handler'
+    ),
+    'JWT_SECRET_KEY': SECRET_KEY,
+    'TOKEN_OBTAIN_SERIALIZER': 'accounts.serializers.CustomTokenObtainPairSerializer',
 }
 
 # settings.py
@@ -169,3 +185,16 @@ REST_FRAMEWORK = {
     # other settings
 }
 
+
+
+# # middleware.py
+# from django.utils.deprecation import MiddlewareMixin
+# from django.utils import timezone
+
+# class TimezoneMiddleware(MiddlewareMixin):
+#     def process_request(self, request):
+#         user_tz = request.session.get('user_tz', None)
+#         if user_tz:
+#             timezone.activate(timezone.get_timezone(user_tz))
+#         else:
+#             timezone.activate(timezone.get_current_timezone())

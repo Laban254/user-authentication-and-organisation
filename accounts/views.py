@@ -12,11 +12,12 @@ from .serializers import (
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .serializers import LoginSerializer
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -162,26 +163,32 @@ class OrganisationListView(GenericAPIView):
             "data": {"organisations": serializer.data}
         }, status=status.HTTP_200_OK)
 
-class OrganisationDetailView(GenericAPIView):
+class OrganisationDetailView(RetrieveAPIView):
     serializer_class = OrganisationSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, orgId, *args, **kwargs):
+    def get_object(self):
+        org_id = self.kwargs['orgId']
         try:
-            organisation = Organisation.objects.get(pk=orgId, users=request.user)
+            organisation = Organisation.objects.get(pk=org_id, users=self.request.user)
+            return organisation
         except Organisation.DoesNotExist:
+            return None
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance:
+            serializer = self.get_serializer(instance)
             return Response({
-                "status": "Bad Request",
-                "message": "client error",
-                "statusCode": 400
-            }, status=status.HTTP_400_BAD_REQUEST)
-        
-        serializer = self.get_serializer(organisation)
-        return Response({
-            "status": "success",
-            "message": "Organisation record retrieved successfully",
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
+                "status": "success",
+                "message": "Organisation record retrieved successfully",
+                "data": serializer.data
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                "status": "Forbidden",
+                "message": "You do not have permission to access this organisation."
+            }, status=status.HTTP_403_FORBIDDEN)
     
 
 class OrganisationCreateView(GenericAPIView):

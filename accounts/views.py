@@ -155,7 +155,7 @@ class UserDetailView(generics.RetrieveAPIView):
 
         # Check if the requesting user can access this user's data
         if request.user.is_authenticated:
-            if request.user.id == user.id:
+            if request.user.id == user.userId:
                 # Return data if the user is requesting their own data
                 serializer = self.get_serializer(user)
                 return Response({

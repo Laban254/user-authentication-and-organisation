@@ -17,7 +17,11 @@ from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.http import HttpResponse
 
+
+def welcome_view(request):
+    return HttpResponse("Hng Internship user and organization management API")
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer

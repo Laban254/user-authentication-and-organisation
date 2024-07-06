@@ -146,7 +146,7 @@ class UserDetailView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('id')
         try:
-            user = User.objects.get(id=user_id)
+            user = User.objects.get(userId=user_id)
         except User.DoesNotExist:
             return Response({
                 "status": "error",

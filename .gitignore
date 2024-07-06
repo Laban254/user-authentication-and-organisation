@@ -1,0 +1,74 @@
+# Python
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+
+# Environments
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+envUserAuth
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Database
+db.sqlite3
+db.sqlite3-journal
+
+# Static files
+staticfiles/
+static/
+
+# Media files
+media/
+
+# Django migrations
+*/migrations/__pycache__/
+*/migrations/*.pyc
+*/migrations/*.log
+*/migrations/*.tmp
+
+# Docker
+docker-compose.override.yml
+*.db
+
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pycharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+.vscode/
+.history/

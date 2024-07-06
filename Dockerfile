@@ -16,6 +16,11 @@ RUN pip install --upgrade pip \
 # Copy the rest of the application code
 COPY . /code/
 
+
+
+# collect static files
+RUN python manage.py collectstatic --noinput 
+
 # Expose the port on which Gunicorn will run
 EXPOSE $PORT
 

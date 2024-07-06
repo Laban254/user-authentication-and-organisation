@@ -146,7 +146,7 @@ class UserDetailView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('id')
         try:
-            user = User.objects.get(userId=user_id)
+            user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response({
                 "status": "error",
@@ -154,19 +154,36 @@ class UserDetailView(generics.RetrieveAPIView):
             }, status=status.HTTP_404_NOT_FOUND)
 
         # Check if the requesting user can access this user's data
-        if request.user.is_authenticated and (request.user == user or user in request.user.organizations.all()):
-            serializer = self.get_serializer(user)
-            return Response({
-                "status": "success",
-                "message": "User record retrieved successfully",
-                "data": serializer.data
-            }, status=status.HTTP_200_OK)
+        if request.user.is_authenticated:
+            if request.user.id == user.id:
+                # Return data if the user is requesting their own data
+                serializer = self.get_serializer(user)
+                return Response({
+                    "status": "success",
+                    "message": "User record retrieved successfully",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+            elif user.organizations.filter(users=request.user).exists():
+                # Return data if the requesting user belongs to the same organization(s)
+                serializer = self.get_serializer(user)
+                return Response({
+                    "status": "success",
+                    "message": "User record retrieved successfully",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+            else:
+                # Return error if the requesting user is not authorized
+                return Response({
+                    "status": "error",
+                    "message": "Unauthorized to access this user's data"
+                }, status=status.HTTP_403_FORBIDDEN)
         else:
+            # Return error if the user is not authenticated
             return Response({
                 "status": "error",
-                "message": "Unauthorized to access this user's data"
-            }, status=status.HTTP_403_FORBIDDEN)
-
+                "message": "Authentication credentials were not provided."
+            }, status=status.HTTP_401_UNAUTHORIZED)
+        
 class OrganisationListView(GenericAPIView):
     serializer_class = OrganisationSerializer
     permission_classes = [IsAuthenticated]

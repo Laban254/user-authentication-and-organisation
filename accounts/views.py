@@ -190,7 +190,6 @@ class OrganisationDetailView(RetrieveAPIView):
                 "message": "You do not have permission to access this organisation."
             }, status=status.HTTP_403_FORBIDDEN)
     
-
 class OrganisationCreateView(GenericAPIView):
     serializer_class = OrganisationCreateSerializer
     permission_classes = [IsAuthenticated]

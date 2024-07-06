@@ -139,21 +139,22 @@ class LoginView(GenericAPIView):
     
 class UserDetailView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     lookup_field = 'id'
 
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('id')
         try:
-            user = User.objects.get(userId=user_id)
+            user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response({
                 "status": "error",
                 "message": "User does not exist"
             }, status=status.HTTP_404_NOT_FOUND)
 
-        # Check if the user can access this data
-        if request.user == user or user in request.user.organizations.all():
+        # Check if the requesting user can access this user's data
+        if request.user.is_authenticated and (request.user == user or user in request.user.organizations.all()):
             serializer = self.get_serializer(user)
             return Response({
                 "status": "success",

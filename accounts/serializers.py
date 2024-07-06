@@ -2,19 +2,25 @@ from rest_framework import serializers
 from .models import User, Organisation
 
 from rest_framework import serializers
-from django.contrib.auth.password_validation import validate_password
-
 class UserSerializer(serializers.Serializer):
     userId = serializers.IntegerField()
     firstName = serializers.CharField(max_length=30)
     lastName = serializers.CharField(max_length=30)
     email = serializers.EmailField()
-    phone = serializers.CharField(max_length=15, allow_blank=True)
+    phone = serializers.CharField(max_length=15, required=False)
 
 class OrganisationSerializer(serializers.Serializer):
-    org_id = serializers.IntegerField()
+    orgId = serializers.IntegerField(source='org_id')
     name = serializers.CharField(max_length=255)
     description = serializers.CharField()
+
+class OrganisationCreateSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=255)
+    description = serializers.CharField(max_length=1024, required=False)
+
+class AddUserToOrganisationSerializer(serializers.Serializer):
+    userId = serializers.IntegerField()
+    
 
 class RegistrationSerializer(serializers.Serializer):
     firstName = serializers.CharField(max_length=30)

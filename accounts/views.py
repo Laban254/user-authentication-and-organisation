@@ -70,24 +70,24 @@ class RegisterView(GenericAPIView):
         except DjangoValidationError as exc:
             return Response({
                 "status": "Bad request",
-                # "message": "Validation error occurred",
+                "message": "Validation error occurred",
                 "message":"Registration unsuccessful",
-                # "details": exc.messages,
+                "details": exc.messages,
                 "statusCode": 400
             }, status=status.HTTP_400_BAD_REQUEST)
         except DatabaseError as exc:
             return Response({
                 "status": "Bad request",
-                # "message": "Database error occurred during registration. Please try again later.",
-                # "details": str(exc),
+                "message": "Database error occurred during registration. Please try again later.",
+                "details": str(exc),
                 "message":"Registration unsuccessful",
                 "statusCode": 400
             }, status=status.HTTP_400_BAD_REQUEST)
         except Exception as exc:
             return Response({
                 "status": "Bad request",
-                # "message": "An unexpected error occurred during registration. Please try again later.",
-                # "details": str(exc),
+                "message": "An unexpected error occurred during registration. Please try again later.",
+                "details": str(exc),
                 "message":"Registration unsuccessful",
                 "statusCode": 400
             }, status=status.HTTP_400_BAD_REQUEST)

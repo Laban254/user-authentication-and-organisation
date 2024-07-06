@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-96^i%a$dd46kdowegy!i&jn@z%9lqu!yx^38k5cf+$mw#ygwb1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -81,17 +81,28 @@ WSGI_APPLICATION = 'user_auth_org.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+#      'default': {
+#          'NAME': BASE_DIR / 'db.sqlite3',
+#      }
+#  }
 
+# DATABASES = {
+#      'default': dj_database_url.config(
+#          default=os.getenv('DATABASE_URL')
+#      )
+#  }
 DATABASES = {
-     'default': dj_database_url.config(
-         default=os.getenv('DATABASE_URL')
-     )
- }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+
+# Update the database configuration with $DATABASE_URL if set
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
+    DATABASES['default'] = dj_database_url.config(default=DATABASE_URL)
 
 
 # Password validation

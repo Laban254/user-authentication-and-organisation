@@ -1,5 +1,4 @@
 # Use an official Python runtime as a parent image
-# Use an official Python runtime as a parent image
 FROM python:3.10
 
 # Set environment variables
@@ -20,5 +19,5 @@ COPY . /code/
 # Expose the port on which Gunicorn will run
 EXPOSE $PORT
 
-# Run Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "user_auth_org.wsgi:application"]
+# Run makemigrations, migrate, and then Gunicorn
+CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && gunicorn --bind 0.0.0.0:$PORT user_auth_org.wsgi:application"]

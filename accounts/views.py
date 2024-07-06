@@ -146,7 +146,7 @@ class UserDetailView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get('id')
         try:
-            user = User.objects.get(userId=user_id)
+            user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response({
                 "status": "error",
@@ -155,16 +155,8 @@ class UserDetailView(generics.RetrieveAPIView):
 
         # Check if the requesting user can access this user's data
         if request.user.is_authenticated:
-            if request.user.userId == user.userId:
+            if str(request.user.id) == user_id:
                 # Return data if the user is requesting their own data
-                serializer = self.get_serializer(user)
-                return Response({
-                    "status": "success",
-                    "message": "User record retrieved successfully",
-                    "data": serializer.data
-                }, status=status.HTTP_200_OK)
-            elif user.organizations.filter(users=request.user).exists():
-                # Return data if the requesting user belongs to the same organization(s)
                 serializer = self.get_serializer(user)
                 return Response({
                     "status": "success",

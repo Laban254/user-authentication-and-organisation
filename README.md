@@ -273,7 +273,7 @@ This Django project implements a user management system with authentication and 
     
 
 ## Test Cases
-To ru test, be in the same directory as manage.py and run
+To run test, be in the same directory as manage.py and run
 
 		python3 manage.py  test  accounts.tests.auth.spec
 

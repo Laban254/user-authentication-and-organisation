@@ -14,7 +14,13 @@ from rest_framework.test import APIClient
 User = get_user_model()
 
 class TokenGenerationTest(APITestCase):
+    """
+    Test case for token generation and user details validation.
+    """
     def setUp(self):
+        """
+        Set up a user for testing token generation.
+        """
         self.user = User.objects.create_user(
             email='testuser@example.com',
             password='testpassword',
@@ -22,10 +28,11 @@ class TokenGenerationTest(APITestCase):
             lastName='User',
             phone='+1234567890'
         )
-        print("Setup: Created user with email 'testuser@example.com'")
 
     def test_token_generation_and_user_details(self):
-        # Attempt to log in and get a token
+        """
+        Test token generation and validate user details in the token.
+        """
         response = self.client.post(reverse('token_obtain_pair'), {
             'email': 'testuser@example.com',
             'password': 'testpassword',
@@ -34,37 +41,30 @@ class TokenGenerationTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # Extract the access token from the response
         access_token = response.data.get('access')
 
-        # Proceed only if an access token was successfully obtained
         if access_token:
-            # Decode the token to check its payload
             decoded_token = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
-            # print(f"Decoded token: {decoded_token}")
-
-            # Assert the user ID in the token matches the user's ID
             self.assertEqual(decoded_token['user_id'], self.user.userId)
-
-            # Convert the exp timestamp to a datetime object and make it offset-aware
             exp_datetime = datetime.fromtimestamp(decoded_token['exp'], pytz.utc)
-
-            # Assert the token has not expired
             now = timezone.now()
             self.assertGreaterEqual(exp_datetime, now)
 
-            # Assert the token contains the correct user details
             self.assertEqual(decoded_token['email'], 'testuser@example.com')
             self.assertEqual(decoded_token['firstName'], 'Test')
             self.assertEqual(decoded_token['lastName'], 'User')
             self.assertEqual(decoded_token['phone'], '+1234567890')
-            print("Token contains the correct user details")
-            print("Test for test_token_generation_and_user_details Passed")
         else:
             print("Access token not found in response")
 
 class OrganisationAccessTestCase(APITestCase):
+    """
+    Test case for verifying user access permissions to organisations.
+    """
     def setUp(self):
+        """
+        Set up users and organisations for testing access permissions.
+        """
         # Create users
         self.user1 = User.objects.create_user(
             email='user1@example.com',
@@ -96,6 +96,9 @@ class OrganisationAccessTestCase(APITestCase):
         self.org2.users.add(self.user2)
 
     def test_user_cannot_access_unauthorized_organisation(self):
+        """
+        Test that a user cannot access an organisation they are not authorized for.
+        """
         # Log in user1 to get the access token
         client = APIClient()
         login_response = client.post(reverse('token_obtain_pair'), {
@@ -115,15 +118,20 @@ class OrganisationAccessTestCase(APITestCase):
         
         # Check if access is denied
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        
-        # Print statements to confirm the test has passed
-        print("Test  for test_user_cannot_access_unauthorized_organisation Passed.")
+
 
 
 class RegisterEndpointTestCase(APITestCase):
-    url = reverse('register')  # Assuming 'register' is the name of your registration endpoint
+    """
+    Test case for registration endpoint.
+    """
+    
+    url = reverse('register')
 
     def test_successful_registration(self):
+        """
+        Test successful user registration.
+        """
         data = {
             'firstName': 'John',
             'lastName': 'Doe',
@@ -135,13 +143,14 @@ class RegisterEndpointTestCase(APITestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # Optional: Check if user object was created in the database
         user = User.objects.get(email='john.doe@example.com')
         self.assertEqual(user.firstName, 'John')
         self.assertEqual(user.lastName, 'Doe')
-        print("Test for test_successful_registration Passed")
 
     def test_unique_email_constraint(self):
+        """
+        Test that registration fails with a duplicate email.
+        """
         data1 = {
             'firstName': 'John',
             'lastName': 'Doe',
@@ -152,7 +161,7 @@ class RegisterEndpointTestCase(APITestCase):
         data2 = {
             'firstName': 'Jane',
             'lastName': 'Doe',
-            'email': 'john.doe@example.com',  # Same email as data1
+            'email': 'john.doe@example.com',
             'password': 'testpassword',
             'phone': '+25479620088'
         }
@@ -162,10 +171,11 @@ class RegisterEndpointTestCase(APITestCase):
 
         response2 = self.client.post(self.url, data2, format='json')
         self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
-        print("Test for test_unique_email_constraint Passed")
 
     def test_missing_required_fields(self):
-        # Test case for missing required fields
+        """
+        Test registration fails when required fields are missing.
+        """
         data = {
             'lastName': 'Doe',
             'email': 'john.doe@example.com',
@@ -175,10 +185,11 @@ class RegisterEndpointTestCase(APITestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
         self.assertIn('firstName', response.data['errors'][0]['field'])
-        print("Test case for missing required fields passed")
 
     def test_invalid_email_format(self):
-        # Test case for invalid email format
+        """
+        Test registration fails with an invalid email format.
+        """
         data = {
             'firstName': 'John',
             'lastName': 'Doe',
@@ -189,10 +200,11 @@ class RegisterEndpointTestCase(APITestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
         self.assertIn('email', response.data['errors'][0]['field'])
-        print("Test case for invalid email format Passed")
 
     def test_blank_password(self):
-        # Test case for blank password
+        """
+        Test registration fails with a blank password.
+        """
         data = {
             'firstName': 'John',
             'lastName': 'Doe',
@@ -203,4 +215,3 @@ class RegisterEndpointTestCase(APITestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_422_UNPROCESSABLE_ENTITY)
         self.assertIn('password', response.data['errors'][0]['field'])
-        print("Test case for blank password Passed")
